@@ -17,15 +17,22 @@ public class BudgetService implements IfBudgetService {
     @Override
     public Budget getBudget(String budgetCode) throws ExecutionException, InterruptedException {
         log.info("BEGIN: BudgetService.getBudget");
+        Budget budget = null;
+
+        // get firestore to query data
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("budget");
-        Query query1 = collectionReference.whereEqualTo("budget_code", budgetCode);
+        Query query1 = collectionReference.whereEqualTo("budgetCode", budgetCode);
+
+        // get data from query
         ApiFuture<QuerySnapshot> apiFuture = query1.get();
+        // for loop data
         for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
-            log.info(document.getId());
-        Budget budget = document.toObject(Budget.class);
+            log.info("Get data success");
+            budget = document.toObject(Budget.class);
         }
-   return null;
+        log.info("END: BudgetService.getBudget");
+        return budget;
     }
 
     @Override

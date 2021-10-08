@@ -1,0 +1,5 @@
+micronaut:
+  application:
+    name: qlct_service
+  server:
+    port: 1818
