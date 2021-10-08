@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.qlct
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [ annotation-api, app-name, data, data-jpa, h2, hibernate-validator, http-client, jackson-xml, java, java-application, jdbc-hikari, junit, lombok, maven, netty-server, problem-json, readme, security-annotations, security-jwt, shade, slf4j-simple, yaml ]
