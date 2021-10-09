@@ -1,8 +1,10 @@
 package com.qlct.model;
-import com.google.cloud.Timestamp;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -29,11 +31,11 @@ public class Budget {
 
     private int deleteFlag;
 
-    private Timestamp updatedAt;
+    private Date updatedAt;
 
-    private Timestamp createdAt;
+    private Date createdAt;
 
-    private Timestamp startAt;
+    private Date startAt;
 
-    private Timestamp endAt;
+    private Date endAt;
 }
