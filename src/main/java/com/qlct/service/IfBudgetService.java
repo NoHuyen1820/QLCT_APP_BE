@@ -1,13 +1,15 @@
 package com.qlct.service;
 
 import com.qlct.core.dto.BudgetDTO;
+
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface IfBudgetService {
 
     BudgetDTO getBudget(String budgetCode) throws ExecutionException, InterruptedException;
 
-    BudgetDTO getBudgets(String budgetCode);
+    List<BudgetDTO> getBudgets();
 
     String createBudget(BudgetDTO budget) throws ExecutionException, InterruptedException;
 

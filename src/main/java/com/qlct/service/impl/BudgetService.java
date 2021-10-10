@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -32,15 +33,16 @@ public class BudgetService extends BaseService implements IfBudgetService {
         // get firestore to query data
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("budget");
-        Query query1 = collectionReference.whereEqualTo("budgetCode", budgetCode).whereEqualTo("deleteFlag", false);
+        Query query = collectionReference.whereEqualTo("budgetCode", budgetCode).whereEqualTo("deleteFlag", false);
 
         // get data from query
-        ApiFuture<QuerySnapshot> apiFuture = query1.get();
+        ApiFuture<QuerySnapshot> apiFuture = query.get();
         // for loop data
         Budget budgetEntity;
         for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
             log.info("Get data success");
             budgetEntity = document.toObject(Budget.class);
+            assert budgetEntity != null;
             budgetEntity.setId(document.getId());
             result = budgetMapper.toDto(budgetEntity);
         }
@@ -49,7 +51,7 @@ public class BudgetService extends BaseService implements IfBudgetService {
     }
 
     @Override
-    public BudgetDTO getBudgets(String budgetCode) {
+    public List<BudgetDTO> getBudgets() {
 
         return null;
     }
@@ -104,23 +106,30 @@ public class BudgetService extends BaseService implements IfBudgetService {
                 if (null != budget.getPassword()) {
                     map.put("password", budget.getPassword());
                 }
+                //retest
+                if (budgetDTO.isDeleteFlag() != budget.isDeleteFlag()) {
+                    map.put("deleteFlag", budget.isDeleteFlag());
+                }
+                //retest
+                if (budgetDTO.getType() != budget.getType()) {
+                    map.put("type", budget.getType());
+                }
+                //retest
+                if (budgetDTO.getStatus() != budget.getStatus()) {
+                    map.put("status", budget.getStatus());
+                }
 
-                map.put("deleteFlag", budget.isDeleteFlag());
-
-                map.put("type", budget.getType());
-
-                map.put("status", budget.getStatus());
-
-                map.put("color", budget.getColor());
-
+                if (budgetDTO.getColor() != budget.getColor()) {
+                    map.put("color", budget.getColor());
+                }
+                log.info(String.valueOf(map.size()));
                 // Check map has value or not
-                if (!map.isEmpty()) {
+                if (map.isEmpty()) {
                     log.info("no change");
                 } else {
                     ApiFuture<WriteResult> writeResult = db.collection("budget").document(budgetDTO.getId()).update(map);
                     log.info("END:BudgetService.updateBudget");
                     return writeResult.get().toString();
-
                 }
 
             } else {
