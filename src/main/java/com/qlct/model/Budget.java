@@ -4,12 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
 @Setter
 @ToString
 public class Budget {
+
+    private  String id;
 
     private String budgetCode;
 
@@ -23,13 +26,13 @@ public class Budget {
 
     private int color;
 
-    private double amount;
+    private BigDecimal amount;
 
     private int status;
 
     private int type;
 
-    private int deleteFlag;
+    private boolean deleteFlag;
 
     private Date updatedAt;
 

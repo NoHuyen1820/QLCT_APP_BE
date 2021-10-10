@@ -47,4 +47,32 @@ public class BudgetController {
         return responseDTO;
     }
 
+    @Put("/updateBudget")
+    public ResponseDTO<String> updateBudget(@Body BudgetDTO budget) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: BudgeController.updateBudget");
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        if(null == budget){
+            responseDTO.setStatus(HttpStatus.BAD_REQUEST);
+        } else{
+            String budgetID = budgetService.updateBudget(budget);
+            responseDTO.setData(budgetID);
+        }
+        log.info("END: BudgeController.updateBudget");
+        return responseDTO;
+    }
+
+    @Delete("/deleteBudget")
+     public  ResponseDTO<String> deleteBudget (@QueryValue String budgetCode) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: BudgeController.deleteBudget");
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        if(null == budgetCode){
+            responseDTO.setStatus(HttpStatus.BAD_REQUEST);
+        } else{
+            String budgetDel = budgetService.deleteBudget(budgetCode);
+            responseDTO.setData(budgetDel);
+        }
+        log.info("END: BudgeController.deleteBudget");
+        return responseDTO;
+     }
+
 }

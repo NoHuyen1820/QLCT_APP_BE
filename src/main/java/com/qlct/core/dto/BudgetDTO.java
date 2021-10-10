@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -14,6 +15,8 @@ import java.util.Date;
 public class BudgetDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private String id;
 
     private String budgetCode;
 
@@ -27,13 +30,13 @@ public class BudgetDTO implements Serializable {
 
     private int color;
 
-    private double amount;
+    private BigDecimal amount;
 
     private int status;
 
     private int type;
 
-    private int deleteFlag;
+    private boolean deleteFlag;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMddHHmmss")
     private Date updatedAt;
