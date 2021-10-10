@@ -1,13 +1,14 @@
 package com.qlct.controller;
 
+import com.qlct.core.dto.BudgetDTO;
 import com.qlct.core.dto.api.ResponseDTO;
-import com.qlct.model.Budget;
-import com.qlct.service.impl.BudgetService;
+import com.qlct.service.IfBudgetService;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.inject.Inject;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -16,20 +17,71 @@ import java.util.concurrent.ExecutionException;
 public class BudgetController {
 
     @Inject
-    BudgetService budgetService;
+    IfBudgetService budgetService;
 
     @Get("/getBudget")
-    public ResponseDTO<Budget> getBudget(@QueryValue String budgetCode) throws ExecutionException, InterruptedException {
+    public ResponseDTO<BudgetDTO> getBudget(@QueryValue String budgetCode) throws ExecutionException, InterruptedException {
         log.info("BEGIN: BudgeController.getBudget");
-        ResponseDTO<Budget> responseDTO1 = new ResponseDTO<>();
+        ResponseDTO<BudgetDTO> responseDTO = new ResponseDTO<>();
         if(Objects.equals(budgetCode,"")){
-            responseDTO1.setStatus(HttpStatus.BAD_REQUEST);
+            responseDTO.setStatus(HttpStatus.BAD_REQUEST);
         } else{
-            Budget budget = budgetService.getBudget(budgetCode);
-            responseDTO1.setData(budget);
+            BudgetDTO budget = budgetService.getBudget(budgetCode);
+            responseDTO.setData(budget);
         }
         log.info("END: BudgeController.getBudget");
-        return responseDTO1;
+        return responseDTO;
     }
+
+    @Get("/getBudgets")
+    public ResponseDTO<List<BudgetDTO>> getBudgets() throws ExecutionException, InterruptedException {
+        ResponseDTO<List<BudgetDTO>> responseDTO = new ResponseDTO<>();
+        List<BudgetDTO> budgetDTOList = budgetService.getBudgets();
+        responseDTO.setData(budgetDTOList);
+        return responseDTO;
+    }
+
+    @Post("/createBudget")
+    public ResponseDTO<String> createBudget(@Body BudgetDTO budget) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: BudgeController.createBudget");
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        if(null == budget){
+            responseDTO.setStatus(HttpStatus.BAD_REQUEST);
+        } else{
+            String budgetID = budgetService.createBudget(budget);
+            responseDTO.setData(budgetID);
+        }
+
+        log.info("END: BudgeController.createBudget");
+        return responseDTO;
+    }
+
+    @Put("/updateBudget")
+    public ResponseDTO<String> updateBudget(@Body BudgetDTO budget) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: BudgeController.updateBudget");
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        if(null == budget){
+            responseDTO.setStatus(HttpStatus.BAD_REQUEST);
+        } else{
+            String budgetID = budgetService.updateBudget(budget);
+            responseDTO.setData(budgetID);
+        }
+        log.info("END: BudgeController.updateBudget");
+        return responseDTO;
+    }
+
+    @Delete("/deleteBudget")
+     public  ResponseDTO<String> deleteBudget (@QueryValue String budgetCode) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: BudgeController.deleteBudget");
+        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        if(null == budgetCode){
+            responseDTO.setStatus(HttpStatus.BAD_REQUEST);
+        } else{
+            String budgetDel = budgetService.deleteBudget(budgetCode);
+            responseDTO.setData(budgetDel);
+        }
+        log.info("END: BudgeController.deleteBudget");
+        return responseDTO;
+     }
 
 }
