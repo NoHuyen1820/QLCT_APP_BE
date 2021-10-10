@@ -8,6 +8,7 @@ import io.micronaut.http.annotation.*;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -29,6 +30,14 @@ public class BudgetController {
             responseDTO.setData(budget);
         }
         log.info("END: BudgeController.getBudget");
+        return responseDTO;
+    }
+
+    @Get("/getBudgets")
+    public ResponseDTO<List<BudgetDTO>> getBudgets() throws ExecutionException, InterruptedException {
+        ResponseDTO<List<BudgetDTO>> responseDTO = new ResponseDTO<>();
+        List<BudgetDTO> budgetDTOList = budgetService.getBudgets();
+        responseDTO.setData(budgetDTOList);
         return responseDTO;
     }
 

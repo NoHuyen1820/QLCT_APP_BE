@@ -9,7 +9,7 @@ public interface IfBudgetService {
 
     BudgetDTO getBudget(String budgetCode) throws ExecutionException, InterruptedException;
 
-    List<BudgetDTO> getBudgets();
+    List<BudgetDTO> getBudgets() throws ExecutionException, InterruptedException;
 
     String createBudget(BudgetDTO budget) throws ExecutionException, InterruptedException;
 

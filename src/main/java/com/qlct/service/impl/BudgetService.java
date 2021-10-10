@@ -12,10 +12,7 @@ import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -51,9 +48,25 @@ public class BudgetService extends BaseService implements IfBudgetService {
     }
 
     @Override
-    public List<BudgetDTO> getBudgets() {
+    public List<BudgetDTO> getBudgets() throws ExecutionException, InterruptedException {
+        log.info("BEGIN: BudgetService.getBudgets");
+        List<BudgetDTO> budgetDTOList = new ArrayList<>();
 
-        return null;
+        Firestore db = FirestoreClient.getFirestore();
+        CollectionReference collectionReference = db.collection("budget");
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false);
+        ApiFuture<QuerySnapshot> apiFuture = queryList.get();
+
+        for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
+            Budget budgetEntity = document.toObject(Budget.class);
+            assert budgetEntity != null;
+            budgetEntity.setId(document.getId());
+            BudgetDTO budgetDTO = budgetMapper.toDto(budgetEntity);
+            budgetDTOList.add(budgetDTO);
+        }
+
+        log.info("END: BudgetService.getBudgets");
+        return budgetDTOList;
     }
 
     @Override
@@ -63,6 +76,10 @@ public class BudgetService extends BaseService implements IfBudgetService {
         log.info("BEGIN:BudgetService.createBudget");
         Firestore db = FirestoreClient.getFirestore();
         Budget budgetEntity = budgetMapper.toEntity(budget);
+        budgetEntity.setCreatedAt(new Date());
+        budgetEntity.setUpdatedAt(new Date());
+        budgetEntity.setDeleteFlag(false);
+        // TODO - budgetCode be generated
         ApiFuture<DocumentReference> docRef = db.collection("budget").add(budgetEntity);
         log.info("END:BudgetService.createBudget");
         return docRef.get().getId();
@@ -94,7 +111,6 @@ public class BudgetService extends BaseService implements IfBudgetService {
                     map.put("name", budget.getName());
                 }
 
-
                 if (null != budget.getStartAt()) {
                     map.put("startAt", budget.getStartAt());
                 }
@@ -106,15 +122,15 @@ public class BudgetService extends BaseService implements IfBudgetService {
                 if (null != budget.getPassword()) {
                     map.put("password", budget.getPassword());
                 }
-                //retest
+
                 if (budgetDTO.isDeleteFlag() != budget.isDeleteFlag()) {
                     map.put("deleteFlag", budget.isDeleteFlag());
                 }
-                //retest
+
                 if (budgetDTO.getType() != budget.getType()) {
                     map.put("type", budget.getType());
                 }
-                //retest
+
                 if (budgetDTO.getStatus() != budget.getStatus()) {
                     map.put("status", budget.getStatus());
                 }
@@ -122,11 +138,12 @@ public class BudgetService extends BaseService implements IfBudgetService {
                 if (budgetDTO.getColor() != budget.getColor()) {
                     map.put("color", budget.getColor());
                 }
-                log.info(String.valueOf(map.size()));
+
                 // Check map has value or not
                 if (map.isEmpty()) {
                     log.info("no change");
                 } else {
+                    map.put("updatedAt", new Date());
                     ApiFuture<WriteResult> writeResult = db.collection("budget").document(budgetDTO.getId()).update(map);
                     log.info("END:BudgetService.updateBudget");
                     return writeResult.get().toString();
