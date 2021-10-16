@@ -5,6 +5,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.qlct.core.dto.TransactionDTO;
 import com.qlct.core.mapper.TransactionMapper;
+import com.qlct.core.util.Generate;
 import com.qlct.model.Transaction;
 import com.qlct.service.IfTransactionService;
 import jakarta.inject.Singleton;
@@ -73,7 +74,8 @@ public class TransactionService implements IfTransactionService {
         transactionEntity.setCreatedAt(new Date());
         transactionEntity.setUpdatedAt(new Date());
         transactionEntity.setDeleteFlag(false);
-        // TODO - transactionNumber be generated
+        transactionEntity.setTransactionNumber(Generate.generateCode("TR"));
+
         ApiFuture<DocumentReference> docRef = db.collection("transaction").add(transactionEntity);
         log.info("END:TransactionService.createTransaction");
         return docRef.get().getId();

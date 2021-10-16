@@ -5,6 +5,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.qlct.core.dto.BudgetDTO;
 import com.qlct.core.mapper.BudgetMapper;
+import com.qlct.core.util.Generate;
 import com.qlct.model.Budget;
 import com.qlct.service.BaseService;
 import com.qlct.service.IfBudgetService;
@@ -79,7 +80,7 @@ public class BudgetService extends BaseService implements IfBudgetService {
         budgetEntity.setCreatedAt(new Date());
         budgetEntity.setUpdatedAt(new Date());
         budgetEntity.setDeleteFlag(false);
-        // TODO - budgetCode be generated
+        budgetEntity.setBudgetCode(Generate.generateCode("BG"));
         ApiFuture<DocumentReference> docRef = db.collection("budget").add(budgetEntity);
         log.info("END:BudgetService.createBudget");
         return docRef.get().getId();
