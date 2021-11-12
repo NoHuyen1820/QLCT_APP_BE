@@ -44,6 +44,8 @@ public class Transaction {
 
      private Date startAt;
 
+     private Date scheduledAt;
+
      private Date endAt;
 
 }
