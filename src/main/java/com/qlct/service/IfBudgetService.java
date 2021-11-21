@@ -17,4 +17,5 @@ public interface IfBudgetService {
 
     String updateBudget(BudgetDTO budget) throws ExecutionException, InterruptedException;
 
+    List<BudgetDTO> getAllBudgetByUserCode( String userCode) throws ExecutionException, InterruptedException;
 }

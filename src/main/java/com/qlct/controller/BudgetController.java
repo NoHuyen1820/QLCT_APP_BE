@@ -84,4 +84,12 @@ public class BudgetController {
         return responseDTO;
      }
 
+    @Get("/getAllBudgetByUserCode")
+    public ResponseDTO<List<BudgetDTO>> getAllBudgetByUserCode(@QueryValue String userCode) throws ExecutionException, InterruptedException {
+        ResponseDTO<List<BudgetDTO>> responseDTO = new ResponseDTO<>();
+        List<BudgetDTO> budgetDTOList = budgetService.getAllBudgetByUserCode(userCode);
+        responseDTO.setData(budgetDTOList);
+        return responseDTO;
+    }
+
 }

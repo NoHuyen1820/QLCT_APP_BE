@@ -77,5 +77,20 @@ public class TransactionController {
         return responseDTO;
     }
 
+    @Post("/getAllTransactionByMultiBudgetCode")
+    public ResponseDTO<List<TransactionDTO>> getAllTransactionByMultiBudgetCode(@Body TransactionDTO transactionDTO) throws ExecutionException, InterruptedException {
+        ResponseDTO<List<TransactionDTO>> responseDTO = new ResponseDTO<>();
+        List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionByMultiBudgetCode(transactionDTO);
+        responseDTO.setData(transactionDTOList);
+        return responseDTO;
+    }
+
+    @Get("/getAllTransactionByBudgetCode")
+    public ResponseDTO<List<TransactionDTO>> getAllTransactionByBudgetCode(@QueryValue String budgetCode) throws ExecutionException, InterruptedException {
+        ResponseDTO<List<TransactionDTO>> responseDTO = new ResponseDTO<>();
+        List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionByBudgetCode(budgetCode);
+        responseDTO.setData(transactionDTOList);
+        return responseDTO;
+    }
 
 }
