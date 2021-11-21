@@ -175,4 +175,27 @@ public class BudgetService extends BaseService implements IfBudgetService {
         return "Document ID" + budgetCode + " " + "delete";
     }
 
+    // getAllBudget by userCode
+    @Override
+    public List<BudgetDTO> getAllBudgetByUserCode(String userCode) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: BudgetService.getAllBudgetByUserCode");
+        List<BudgetDTO> budgetDTOList = new ArrayList<>();
+
+        Firestore db = FirestoreClient.getFirestore();
+        CollectionReference collectionReference = db.collection("budget");
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).whereEqualTo("userCode", userCode);
+        ApiFuture<QuerySnapshot> apiFutureNew = queryList.get();
+
+        for (DocumentSnapshot document : apiFutureNew.get().getDocuments()) {
+            Budget budgetEntity = document.toObject(Budget.class);
+            assert budgetEntity != null;
+            budgetEntity.setId(document.getId());
+            BudgetDTO budgetDTO = budgetMapper.toDto(budgetEntity);
+            budgetDTOList.add(budgetDTO);
+        }
+        log.info("END: BudgetService.getAllBudgetByUserCode");
+        return budgetDTOList;
+    }
+
+
 }

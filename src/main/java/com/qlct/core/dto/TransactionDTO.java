@@ -8,6 +8,7 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +22,8 @@ public class TransactionDTO implements Serializable {
     private String transactionNumber;
 
     private String budgetCode;
+
+    private List<String> budgetCodes;
 
     private String userCode;
 
@@ -53,5 +56,11 @@ public class TransactionDTO implements Serializable {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMddHHmmss")
     private Date endAt;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMddHHmmss")
+    private Date fromDate;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMddHHmmss")
+    private Date toDate;
 
 }

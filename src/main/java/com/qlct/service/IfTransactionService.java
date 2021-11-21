@@ -16,4 +16,9 @@ public interface IfTransactionService {
     String deleteTransaction(String transactionNumber) throws ExecutionException, InterruptedException;
 
     String updateTransaction(TransactionDTO transaction) throws ExecutionException, InterruptedException;
+
+    List<TransactionDTO> getAllTransactionByBudgetCode ( String budgetCode) throws ExecutionException, InterruptedException;
+
+    List<TransactionDTO> getAllTransactionByMultiBudgetCode (TransactionDTO transactionDTO) throws ExecutionException, InterruptedException;
+
 }

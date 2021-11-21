@@ -160,4 +160,49 @@ public class TransactionService implements IfTransactionService {
         log.info("Cannot update transaction");
         return null;
     }
+
+    @Override
+    public List<TransactionDTO> getAllTransactionByBudgetCode(String budgetCode) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: TransactionService.getAllTransactionByBudgetCode");
+        List<TransactionDTO> transactionDTOListNew = new ArrayList<>();
+        Firestore db = FirestoreClient.getFirestore();
+        CollectionReference collectionReference = db.collection("transaction");
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).whereEqualTo("budgetCode",budgetCode);
+        ApiFuture<QuerySnapshot> apiFuture = queryList.get();
+
+        for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
+            Transaction transactionEntity = document.toObject(Transaction.class);
+            assert transactionEntity != null;
+            transactionEntity.setId(document.getId());
+            TransactionDTO transactionDTO = transactionMapper.toDto(transactionEntity);
+            transactionDTOListNew.add(transactionDTO);
+        }
+
+        log.info("END: TransactionService.getAllTransactionByBudgetCode");
+        return transactionDTOListNew;
+    }
+
+    @Override
+    public List<TransactionDTO> getAllTransactionByMultiBudgetCode(TransactionDTO transactionDTO) throws ExecutionException, InterruptedException {
+        log.info("BEGIN: TransactionService.getAllTransactionByMultiBudgetCode");
+        List<TransactionDTO> transactionDTOListNew = new ArrayList<>();
+        Firestore db = FirestoreClient.getFirestore();
+        CollectionReference collectionReference = db.collection("transaction");
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false)
+                .whereIn("budgetCode", transactionDTO.getBudgetCodes())
+                .whereGreaterThanOrEqualTo("createdAt", transactionDTO.getFromDate())
+                .whereLessThanOrEqualTo("createdAt", transactionDTO.getToDate());
+        ApiFuture<QuerySnapshot> apiFuture = queryList.get();
+
+        for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
+            Transaction transactionEntity = document.toObject(Transaction.class);
+            assert transactionEntity != null;
+            transactionEntity.setId(document.getId());
+            TransactionDTO transDTO = transactionMapper.toDto(transactionEntity);
+            transactionDTOListNew.add(transDTO);
+        }
+
+        log.info("END: TransactionService.getAllTransactionByMultiBudgetCode");
+        return transactionDTOListNew;
+    }
 }
