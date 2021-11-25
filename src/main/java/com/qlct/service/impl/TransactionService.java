@@ -3,6 +3,7 @@ package com.qlct.service.impl;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import com.qlct.core.dto.BudgetDTO;
 import com.qlct.core.dto.TransactionDTO;
 import com.qlct.core.mapper.TransactionMapper;
 import com.qlct.core.util.Generate;
@@ -12,6 +13,7 @@ import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -21,6 +23,9 @@ public class TransactionService implements IfTransactionService {
 
     @Inject
     private TransactionMapper transactionMapper;
+
+    @Inject
+    BudgetService budgetService;
 
     @Override
     public TransactionDTO getTransaction(String transactionNumber) throws ExecutionException, InterruptedException {
@@ -75,8 +80,36 @@ public class TransactionService implements IfTransactionService {
         transactionEntity.setUpdatedAt(new Date());
         transactionEntity.setDeleteFlag(false);
         transactionEntity.setTransactionNumber(Generate.generateCode("TR"));
-
         ApiFuture<DocumentReference> docRef = db.collection("transaction").add(transactionEntity);
+
+        String budgetCode = transactionEntity.getBudgetCode();
+        BudgetDTO currentBudget = budgetService.getBudget(budgetCode);
+        if(null != currentBudget){
+
+            BigDecimal currentAmount = currentBudget.getAmount();
+            BigDecimal amountTrans = transactionEntity.getAmount();
+            if (transactionEntity.getType() == 0) {
+                currentAmount = currentAmount.add(amountTrans);
+            }
+            if (transactionEntity.getType() == 1) {
+                currentAmount = currentAmount.subtract(amountTrans);
+            }
+            currentBudget.setAmount(currentAmount);
+            budgetService.updateBudget(currentBudget);
+
+        }
+        // after add transaction success
+        // Dung butgetCode de get budget cu~ tren firebase
+        // => BudgetDTO currentBudget = BudgetService.getBudget(transaction.budgetCode)
+
+        // cap nhat lai amount cho: currentAmount = currentBudget.getAmount
+        // tuy theo transaction  type la 0 hay 1 de cong hoac tru amount.
+        // currentAmount = currentAmount (+/-) transaction.amount
+        // currentBudget.setAmount(currentAmount)
+        // go
+        // sau khi da~ cap nhat amount cua budget r
+        // call ham updateBudget(newBudget) => ok? ok
+
         log.info("END:TransactionService.createTransaction");
         return docRef.get().getId();
     }
@@ -167,7 +200,7 @@ public class TransactionService implements IfTransactionService {
         List<TransactionDTO> transactionDTOListNew = new ArrayList<>();
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("transaction");
-        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).whereEqualTo("budgetCode",budgetCode);
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).whereEqualTo("budgetCode",budgetCode).orderBy("createdAt", Query.Direction.DESCENDING);
         ApiFuture<QuerySnapshot> apiFuture = queryList.get();
 
         for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
