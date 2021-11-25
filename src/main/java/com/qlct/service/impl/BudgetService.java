@@ -55,7 +55,7 @@ public class BudgetService extends BaseService implements IfBudgetService {
 
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("budget");
-        Query queryList = collectionReference.whereEqualTo("deleteFlag", false);
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).orderBy("createdAt", Query.Direction.DESCENDING);
         ApiFuture<QuerySnapshot> apiFuture = queryList.get();
 
         for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
