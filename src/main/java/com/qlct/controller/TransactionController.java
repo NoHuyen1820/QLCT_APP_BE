@@ -65,7 +65,7 @@ public class TransactionController {
         return responseDTO;
     }
 
-    @Delete("/deleteTransaction")
+    @Post("/deleteTransaction")
     public ResponseDTO<String> deleteTransaction(@QueryValue String transactionNumber) throws ExecutionException, InterruptedException {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         if (null == transactionNumber) {
