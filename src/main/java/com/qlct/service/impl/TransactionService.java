@@ -131,7 +131,7 @@ public class TransactionService implements IfTransactionService {
             TransactionDTO transactionDTO = getTransaction(transactionNumber);
             if (null != transactionDTO) {
                 Firestore db = FirestoreClient.getFirestore();
-
+                boolean isDeleteTransaction = false;
                 Map<String, Object> map = new HashMap<>();
 
                 if (null != transaction.getTransactionName()) {
@@ -170,8 +170,13 @@ public class TransactionService implements IfTransactionService {
                     map.put("isSchedule", transaction.isSchedule());
                 }
 
+                if (transactionDTO.getType() != transaction.getType()) {
+                    map.put("type", transaction.getType());
+                }
+
                 if ((transactionDTO.isDeleteFlag() != transaction.isDeleteFlag())) {
                     map.put("deleteFlag", transaction.isDeleteFlag());
+                    isDeleteTransaction = true;
                 }
 
                 if (map.isEmpty()) {
@@ -180,6 +185,24 @@ public class TransactionService implements IfTransactionService {
                     map.put("updatedAt", new Date());
                     ApiFuture<WriteResult> writeResultApiFuture = db.collection("transaction").document(transactionDTO.getId()).update(map);
                     log.info("END: TransactionService.updateTransaction");
+
+                    if (isDeleteTransaction) {
+                        String budgetCode = transactionDTO.getBudgetCode();
+                        log.info("budgetCode: " + budgetCode);
+                        log.info("transNum: " + transactionNumber);
+                        BudgetDTO currentBudget = budgetService.getBudget(budgetCode);
+                        BigDecimal currentAmount = currentBudget.getAmount();
+                        BigDecimal amountTrans = transactionDTO.getAmount();
+                        if (transaction.getType() == 0) {
+                            currentAmount = currentAmount.subtract(amountTrans);
+                        }
+                        if (transaction.getType() == 1) {
+                            currentAmount = currentAmount.add(amountTrans);
+                        }
+                        currentBudget.setAmount(currentAmount);
+                        budgetService.updateBudget(currentBudget);
+                    }
+
                     return writeResultApiFuture.get().toString();
                 }
 

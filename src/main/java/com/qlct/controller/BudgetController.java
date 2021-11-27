@@ -3,6 +3,7 @@ package com.qlct.controller;
 import com.qlct.core.dto.BudgetDTO;
 import com.qlct.core.dto.api.ResponseDTO;
 import com.qlct.service.IfBudgetService;
+import com.qlct.service.IfMasterService;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,9 @@ public class BudgetController {
 
     @Inject
     IfBudgetService budgetService;
+
+    @Inject
+    IfMasterService masterService;
 
     @Get("/getBudget")
     public ResponseDTO<BudgetDTO> getBudget(@QueryValue String budgetCode) throws ExecutionException, InterruptedException {
@@ -70,14 +74,14 @@ public class BudgetController {
         return responseDTO;
     }
 
-    @Delete("/deleteBudget")
+    @Post("/deleteBudget")
      public  ResponseDTO<String> deleteBudget (@QueryValue String budgetCode) throws ExecutionException, InterruptedException {
         log.info("BEGIN: BudgeController.deleteBudget");
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         if(null == budgetCode){
             responseDTO.setStatus(HttpStatus.BAD_REQUEST);
         } else{
-            String budgetDel = budgetService.deleteBudget(budgetCode);
+            String budgetDel = masterService.deleteBudget(budgetCode);
             responseDTO.setData(budgetDel);
         }
         log.info("END: BudgeController.deleteBudget");
