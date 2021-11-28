@@ -242,12 +242,24 @@ public class TransactionService implements IfTransactionService {
     public List<TransactionDTO> getAllTransactionByMultiBudgetCode(TransactionDTO transactionDTO) throws ExecutionException, InterruptedException {
         log.info("BEGIN: TransactionService.getAllTransactionByMultiBudgetCode");
         List<TransactionDTO> transactionDTOListNew = new ArrayList<>();
+        if(transactionDTO.getBudgetCodes() == null || transactionDTO.getBudgetCodes().isEmpty()) {
+            return transactionDTOListNew;
+        }
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("transaction");
         Query queryList = collectionReference.whereEqualTo("deleteFlag", false)
-                .whereIn("budgetCode", transactionDTO.getBudgetCodes())
-                .whereGreaterThanOrEqualTo("createdAt", transactionDTO.getFromDate())
-                .whereLessThanOrEqualTo("createdAt", transactionDTO.getToDate());
+                .whereIn("budgetCode", transactionDTO.getBudgetCodes());
+        if (null != transactionDTO.getFromDate() && null != transactionDTO.getToDate()) {
+            Date from = transactionDTO.getFromDate();
+            Date to = transactionDTO.getToDate();
+            if (from.after(to)) {
+                Date temp = from;
+                from = to;
+                to = temp;
+            }
+            queryList = queryList.whereGreaterThanOrEqualTo("createdAt", from)
+                    .whereLessThanOrEqualTo("createdAt", to);
+        }
         ApiFuture<QuerySnapshot> apiFuture = queryList.get();
 
         for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
