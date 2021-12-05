@@ -52,7 +52,7 @@ public class TransactionController {
         return responseDTO;
     }
 
-    @Put("/updateTransaction")
+    @Post("/updateTransaction")
     public ResponseDTO<String> updateTransaction(@Body TransactionDTO transaction) throws ExecutionException, InterruptedException {
         ResponseDTO<String> responseDTO = new ResponseDTO<>();
         if (null == transaction) {
