@@ -56,7 +56,7 @@ public class TransactionService implements IfTransactionService {
         List<TransactionDTO> transactionDTOList = new ArrayList<>();
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("transaction");
-        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).orderBy("createdAt", Query.Direction.DESCENDING);
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).orderBy("updatedAt", Query.Direction.DESCENDING);
         ApiFuture<QuerySnapshot> apiFuture = queryList.get();
 
         for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
@@ -223,7 +223,7 @@ public class TransactionService implements IfTransactionService {
         List<TransactionDTO> transactionDTOListNew = new ArrayList<>();
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("transaction");
-        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).whereEqualTo("budgetCode",budgetCode).orderBy("createdAt", Query.Direction.DESCENDING);
+        Query queryList = collectionReference.whereEqualTo("deleteFlag", false).whereEqualTo("budgetCode",budgetCode).orderBy("updatedAt", Query.Direction.DESCENDING);
         ApiFuture<QuerySnapshot> apiFuture = queryList.get();
 
         for (DocumentSnapshot document : apiFuture.get().getDocuments()) {
@@ -248,7 +248,7 @@ public class TransactionService implements IfTransactionService {
         Firestore db = FirestoreClient.getFirestore();
         CollectionReference collectionReference = db.collection("transaction");
         Query queryList = collectionReference.whereEqualTo("deleteFlag", false)
-                .whereIn("budgetCode", transactionDTO.getBudgetCodes());
+                .whereIn("budgetCode", transactionDTO.getBudgetCodes()).orderBy("createdAt", Query.Direction.DESCENDING);
         if (null != transactionDTO.getFromDate() && null != transactionDTO.getToDate()) {
             Date from = transactionDTO.getFromDate();
             Date to = transactionDTO.getToDate();
