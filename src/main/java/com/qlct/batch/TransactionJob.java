@@ -15,7 +15,7 @@ public class TransactionJob {
     @Inject
     IfScheduleService scheduleService;
 
-    @Scheduled(cron = "0 50 7 ? * *") // temp : 0/20 * * ? * * || main:
+    @Scheduled(cron = "0 50 7 ? * *") // temp : 0/20 * * ? * *  || main: 0 50 7 ? * *
     protected void runScheduled() throws ExecutionException, InterruptedException {
         log.info("BEGIN:TransactionJob.runScheduled");
         scheduleService.scanScheduledTransaction();
