@@ -132,14 +132,19 @@ public class TransactionService implements IfTransactionService {
             if (null != transactionDTO) {
                 Firestore db = FirestoreClient.getFirestore();
                 boolean isDeleteTransaction = false;
+                boolean isUpdateBudget = false;
+                boolean isDiffAmount = false;
+                boolean isDiffType = false;
                 Map<String, Object> map = new HashMap<>();
 
                 if (null != transaction.getTransactionName()) {
                     map.put("transactionName", transaction.getTransactionName());
                 }
 
-                if (null != transaction.getAmount()) {
+                if (!Objects.equals(transactionDTO.getAmount(), transaction.getAmount())) {
                     map.put("amount", transaction.getAmount());
+                    isUpdateBudget = true;
+                    isDiffAmount = true;
                 }
 
                 if (null != transaction.getNote()) {
@@ -172,11 +177,14 @@ public class TransactionService implements IfTransactionService {
 
                 if (transactionDTO.getType() != transaction.getType()) {
                     map.put("type", transaction.getType());
+                    isUpdateBudget = true;
+                    isDiffType = true;
                 }
 
                 if ((transactionDTO.isDeleteFlag() != transaction.isDeleteFlag())) {
                     map.put("deleteFlag", transaction.isDeleteFlag());
                     isDeleteTransaction = true;
+                    isUpdateBudget = false;
                 }
 
                 if (map.isEmpty()) {
@@ -198,6 +206,35 @@ public class TransactionService implements IfTransactionService {
                         }
                         if (transaction.getType() == 1) {
                             currentAmount = currentAmount.add(amountTrans);
+                        }
+                        currentBudget.setAmount(currentAmount);
+                        budgetService.updateBudget(currentBudget);
+                    }
+                    if (isUpdateBudget && isDiffType) {
+                        String budgetCode = transactionDTO.getBudgetCode();
+                        BudgetDTO currentBudget = budgetService.getBudget(budgetCode);
+                        BigDecimal currentAmount = currentBudget.getAmount();
+                        BigDecimal amountTrans = transactionDTO.getAmount();
+                        if (transaction.getType() == 0) {
+                            currentAmount = currentAmount.add(amountTrans).add(transaction.getAmount());
+                        }
+                        if (transaction.getType() == 1) {
+                            currentAmount = currentAmount.subtract(amountTrans).subtract(transaction.getAmount());
+                        }
+                        currentBudget.setAmount(currentAmount);
+                        budgetService.updateBudget(currentBudget);
+                        isUpdateBudget = false;
+                    }
+                    if (isUpdateBudget) {
+                        String budgetCode = transactionDTO.getBudgetCode();
+                        BudgetDTO currentBudget = budgetService.getBudget(budgetCode);
+                        BigDecimal currentAmount = currentBudget.getAmount();
+                        BigDecimal amountTrans = transactionDTO.getAmount();
+                        if (transaction.getType() == 0) {
+                            currentAmount = currentAmount.subtract(amountTrans).add(transaction.getAmount());
+                        }
+                        if (transaction.getType() == 1) {
+                            currentAmount = currentAmount.add(amountTrans).subtract(transaction.getAmount());
                         }
                         currentBudget.setAmount(currentAmount);
                         budgetService.updateBudget(currentBudget);
